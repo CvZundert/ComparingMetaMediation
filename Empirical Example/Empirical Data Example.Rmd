@@ -1,0 +1,790 @@
+---
+title: "Empiricial Data Example"
+author: "Camiel van Zundert"
+date: "29 april 2019"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+# Required packages ###
+library(metaSEM)
+library(lavaan)
+library(metafor)
+library(MASS)
+library(rjags)
+library(dplyr)
+library(kableExtra)
+```
+
+
+```{r}
+
+# Dataset chosen: 
+
+#metaSEM::Scalco17 # https://www.sciencedirect.com/science/article/pii/S0195666317301939?dgcid=api_sd_search-api-endpoint#bib32
+
+
+
+fits <- list() # for storing SEM results 
+
+# Mediation model: 
+Mmodel <- 'BI ~ 1+ b* ATT + cp *SN
+            ATT ~ 1+ a* SN
+           ab := a*b  '
+
+covmat1 <- cor2cov(Scalco17$data$`Al-Swidi et al., 2014`[-5,-5] , sds = sqrt(c(.690,.746,.314,.805)) ) 
+#SD from : https://www.emeraldinsight.com/doi/full/10.1108/BFJ-05-2013-0105
+
+
+fits[[1]] <- sem(model = Mmodel,
+              sample.cov = covmat1,sample.nobs =Scalco17$n[1] )
+
+#summary(fits[[1]])
+
+covmat2 <- cor2cov(Scalco17$data$`Bamberg, 2002`,
+                 sds = (c(.81,1.08,1.11,1.11,.5)) ) 
+# SD from : https://www.sciencedirect.com/science/article/pii/S0167487002001186?via%3Dihub
+
+fits[[2]] <- sem(model = Mmodel,
+            sample.cov = covmat2,sample.nobs =Scalco17$n[8] )
+
+#summary(fits[[2]])
+
+
+covmat3 <- cor2cov(Scalco17$data$`Dean, Raats, & Shepherd, 2012 (Study A)`,
+                 sds = (c(1.11, 1.37 , 1.26, 1.55, 1.14)) )
+# SD from : https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1559-1816.2011.00796.x
+
+
+fits[[3]] <- sem(model = Mmodel,
+            sample.cov = covmat3,sample.nobs =Scalco17$n[9] )
+
+#summary(fits[[3]])
+
+
+covmat4 <- cor2cov(Scalco17$data$`Dean, Raats, & Shepherd, 2012 (Study B)`,
+                 sds = (c(1.10, 1.28 , 1.33 ,1.57, .98)) ) 
+# SD from : https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1559-1816.2011.00796.x
+
+fits[[4]] <- sem(model = Mmodel,
+            sample.cov = covmat4,sample.nobs =Scalco17$n[10] )
+
+#summary(fits[[4]])
+
+
+covmat5 <- cor2cov(Scalco17$data$`Guido et al., 2010`[-5,-5],
+                 sds = (c(7.14, 11.24 , 6.87 ,13.30)) ) 
+# SD from : https://link.springer.com/article/10.1007%2Fs12232-009-0086-5
+
+fits[[5]] <- sem(model = Mmodel,
+            sample.cov = covmat5,sample.nobs =Scalco17$n[12] )
+
+#summary(fits[[5]])
+
+
+covmat6 <- cor2cov(Scalco17$data$`Honkanen & Young, 2015`[-5,-5],
+                 sds = (c(.683, .867 , .901 ,.793)) )  
+# https://www.emeraldinsight.com/doi/full/10.1108/BFJ-06-2014-0199
+
+fits[[6]] <- sem(model = Mmodel,
+            sample.cov = covmat6,sample.nobs =Scalco17$n[13] )
+
+#summary(fits[[6]])
+
+
+
+covmat7 <- cor2cov(Scalco17$data$`Lee, Bonn, & Cho, 2015`[-5,-5],
+                 sds = (c(1.39, 1.27 , 1.41 ,1.35)) )  
+#https://www.emeraldinsight.com/doi/full/10.1108/IJCHM-02-2014-0060
+
+fits[[7]] <- sem(model = Mmodel,
+            sample.cov = covmat7,sample.nobs =Scalco17$n[14] )
+
+#summary(fits[[7]])
+
+
+
+covmat8 <- cor2cov(Scalco17$data$`Lodorfos & Dennis, 2008`[-5,-5],
+                 sds = (c(.93754, 1.06521 , .39920 ,1.09425)) )  
+#https://www.tandfonline.com/doi/figure/10.1080/10454440801918218?scroll=top&needAccess=true
+
+fits[[8]] <- sem(model = Mmodel,
+            sample.cov = covmat8,sample.nobs =Scalco17$n[15] )
+
+#summary(fits[[8]])
+
+
+covmat9 <- cor2cov(Scalco17$data$`Onwezen et al., 2014 (Study A)`,
+                 sds = (c(1.05, 1.51 , 1.46 ,1.88, 1.64)) ) 
+#https://onlinelibrary.wiley.com/doi/full/10.1002/ejsp.1991
+
+fits[[9]] <- sem(model = Mmodel,
+            sample.cov = covmat9,sample.nobs =Scalco17$n[16] )
+
+#summary(fits[[9]])
+
+
+covmat10 <- cor2cov(Scalco17$data$`Robinson & Smith, 2002`[-5,-5],
+                 sds = (c(1.96, 2.88 , 2.44 ,2.25)) ) 
+#https://www.sciencedirect.com/science/article/pii/S1499404606601140?via%3Dihub
+
+fits[[10]] <- sem(model = Mmodel,
+            sample.cov = covmat10,sample.nobs =Scalco17$n[17] )
+
+#summary(fits[[10]])
+
+
+
+covmat11 <- cor2cov(Scalco17$data$`Yadav & Pathak, 2016`[-5,-5],
+                  sds = (c(.44, .43 , .46 ,.46)) ) 
+
+#https://reader.elsevier.com/reader/sd/pii/S0195666315300283?token=7648FB87E157568BDB2D98618403BA9D1BFD937FF853AD3C73D030CF073B9E0B43921BBE33A2FDB338D7BC648B58EED6
+
+fits[[11]] <- sem(model = Mmodel,
+             sample.cov = covmat11,sample.nobs =Scalco17$n[21] )
+
+#summary(fits[[11]])
+
+
+covmat12 <- cor2cov(Scalco17$data$`Yazdanpanah & Forouzani, 2015`[-5,-5],
+                  sds = (c(.92, 1.03 , .88 , 1.23)) )  
+#https://www.sciencedirect.com/science/article/pii/S095965261500195X?via%3Dihub
+
+fits[[12]] <- sem(model = Mmodel,
+             sample.cov = covmat12,sample.nobs =Scalco17$n[22] )
+
+#summary(fits[[12]])
+
+
+
+covmat13 <- cor2cov(Scalco17$data$`Yadav & Pathak, 2016`,
+                  sds = (c(1.175, 1.349 , 1.313 , 1.414, 0.633)) )  #https://www.sciencedirect.com/science/article/pii/S0195666312001237?via%3Dihub
+
+fits[[13]] <- sem(model = Mmodel,
+             sample.cov = covmat13,sample.nobs =Scalco17$n[23] )
+
+#summary(fits[[13]])
+```
+
+
+# Forest plot
+
+```{r}
+
+# extracting parameter estimates and se
+fits_para <- lapply(fits, function(X) parameterestimates(X)[parameterestimates(X)[,4] %in% c("cp","a","b","ab", "total"),c(4,5,6)])
+
+# Forest plots ####
+as        <- sapply(fits_para, function(X) X[3,2])   
+asig       <- sapply(fits_para, function(X) X[3,3])  
+bs        <- sapply(fits_para, function(X) X[1,2])    
+bsig       <- sapply(fits_para, function(X) X[1,3])   
+
+
+
+
+forest( rma(yi=as, sei=asig,slab =names(Scalco17$data)[-c(2:7,11,18:20)] ) )
+title("a effect")
+forest( rma(yi=bs, sei=bsig, slab = names(Scalco17$data)[-c(2:7,11,18:20)]) )
+title("b effect")
+
+
+```
+
+
+# TSSEM
+
+```{r}
+ ####
+# Required input: Correlation matrices and sample sizes.
+X_tssem <- lapply(Scalco17$data[c(1, 8,9,10,12:17,21:23)], function(X) X[c(2,1,4),c(2,1,4)])
+
+#X_tssem <- lapply(fits, function(X)lavInspect(X, "cor.ov")[c(3,2,1),c(3,2,1)]) # Also possible
+n_tssem <- sapply(fits, function(X) lavInspect(X, "Nobs"))
+
+## Regression coefficents
+A1 <- create.mxMatrix(c(       0,       0, 0,
+                               "0.1*a" ,       0, 0,
+                               "0.1*cp", "0.1*b", 0),
+                      type  ="Full", 
+                      byrow = TRUE  , 
+                      ncol  = 3     ,
+                      nrow  = 3     ,
+                      as.mxMatrix = FALSE)
+
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("X","M","Y")
+
+## Covariance matrix
+S1 <- create.mxMatrix(c(1,
+                        0, "0.1*var_M",
+                        0, 0, "0.1*var_Y"),
+                      byrow=TRUE, type="Symm", as.mxMatrix=FALSE)
+
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("X","M","Y")
+
+# Step 1: Estimate pooled covariance matrix
+# REM: Random Effects Model
+# Diag: Random effect are independent
+random1 <- tssem1(X_tssem, 
+                  n_tssem,
+                  method  ="REM"  , 
+                  RE.type = "Diag", 
+                  acov    = "weighted")
+
+summary(random1)$Mx.status1 # 0, meaning code green
+
+random2 <- tssem2(random1, 
+                  Amatrix = A1, 
+                  Smatrix = S1, 
+                  diag.constraints = TRUE,
+                  intervals.type   = "LB",
+                  model.name       = "TSSEM2 Own",
+                  mx.algebras = list(ab    = mxAlgebra(a*b, name = "ab")))
+
+summary(random2)$Mx.status1 # 0, meaning code green
+
+sumres_tssem_stage1 <- summary(random1)
+sumres_tssem_stage2 <- summary(random2)
+```
+
+
+# MASEM
+
+
+```{r}
+y.i_masem          <- sapply(fits_para, function(X) X[X[,"label"]=="ab", "est"])     # y.i is study level indirect effect 
+sigma.sq.i_masem   <- sapply(fits_para, function(X) X[X[,"label"]=="ab", "se"])      # sigma.sq.i is se of indirect effect 
+
+meta_res   <- meta(y = y.i_masem, v = sigma.sq.i_masem**2, intervals.type = "LB") # Random Effects (variance is not constrained to be equal)
+
+sumres_masem    <- summary(meta_res )
+sumres_masem$Mx.status1
+
+```
+
+
+# Monte Carlo (Huang)
+
+```{r}
+
+minusLogL.v <-  function(v, Xvals, sigma.aSE, sigma.bSE, correction=T){
+  
+  L   <- nrow(Xvals)  
+  A   <- v[4]
+  B   <- v[5]
+  V11 <- v[1]
+  V12 <- v[2]
+  V22 <- v[3]
+  V   <- matrix (c(V11, V12,V12, V22), nrow = 2, ncol = 2 )
+  
+  sigma.asCurrent <- sigma.aSE^2
+  sigma.bsCurrent <- sigma.bSE^2
+  
+  if (correction==T){ 
+    f <- (L-1)/L
+  }else{
+    f <- 1 
+  }
+  
+  rslt2 <- L*log(2*pi)
+  
+  for (u in 1:L){
+    
+    M   <- diag(c(sigma.asCurrent[u], sigma.bsCurrent[u])) + V
+    
+    if (det(M) > 0){
+      ldetM <- log (det(M))
+    }else{
+      cat (" ** det(M) = ", det(M) , v  ,  sigma.asCurrent[u] , " " , sigma.bsCurrent[u]  , "\n")
+      ldetM <-  1000   #  make exceptionally large to force det to be positive
+    }
+    
+    rslt2   <- rslt2 + 1/2*f*ldetM + 1/2 * t((Xvals[u,]-c(A,B))) %*% solve (M, tol = 1e-800 ) %*% (Xvals[u,]-c(A,B))
+  }
+  
+  return (rslt2)
+}
+
+VtoW <- function(v){
+  
+  w1 <- log(v[1] + 0.001)
+  w2 <- v[2] / sqrt(v[1] + 0.001)
+  w3 <- log(v[3] - (v[2]^2/(v[1]+0.001)))
+  
+  if (length(v) == 3)
+    return (c(w1, w2, w3))
+  
+  else 
+    return (c(w1, w2, w3 ,v[4:5]))
+}
+
+WtoV <- function(w){
+  
+  V11 <- exp(w[1])
+  V12 <- w[2]*sqrt(V11)
+  V22 <- (exp(w[3])) + (V12^2/exp(w[1]))
+  
+  if(length(w) == 3)
+    return(c(V11, V12, V22))
+  else
+    return(c(V11, V12, V22, w[4:5]))
+}
+
+minusLogL.w <-  function(w, Xvals, sigma.aSE, sigma.bSE){
+  
+  v   <- WtoV(w)
+  ans <- minusLogL.v(v, Xvals, sigma.aSE, sigma.bSE)  
+  
+  return(ans)
+}
+
+
+gradient.v <- function (v, Xvals, sigma.aSE, sigma.bSE, correction=T){
+  
+  K <- nrow(Xvals)
+  V <- matrix (c(v[1], v[2], v[2], v[3]), ncol = 2)
+  A <- v[4]
+  B <- v[5]
+  
+  dsigma.v11 <- matrix (c(1, 0, 0, 0), ncol = 2)
+  dsigma.v12 <- matrix (c(0, 1, 1, 0), ncol = 2)
+  dsigma.v22 <- matrix (c(0, 0, 0, 1), ncol = 2)
+  
+  grv11 <- 0
+  grv12 <- 0
+  grv22 <- 0
+  grA   <- 0
+  grB   <- 0
+  
+  if (correction==T)        
+  {  f <- (K -1)/K}
+  
+  else{ f <- 1}
+  
+  
+  for (i in 1:K){
+    
+    M1         <- matrix(c(sigma.aSE[i]^2, 0, 0, sigma.bSE[i]^2 ), nr=2) + V			
+    M1Inv      <- solve(M1,tol = 1e-800 ) 
+    ssq        <- (Xvals[i,] - c(A,B)) %*% t(Xvals [i,] - c(A,B))           ## 2 x 2 SSQ matrix
+    DiffMatrix <- ssq %*% M1Inv - f* diag(c(1, 1))
+    
+    grv11 <- grv11 - 1/2 * sum(diag(DiffMatrix %*% dsigma.v11 %*%  M1Inv))     #formula 11 for d( - R Log L )
+    
+    grv12 <- grv12 - 1/2 * sum(diag(DiffMatrix %*% dsigma.v12 %*%  M1Inv))    
+    
+    grv22 <- grv22 - 1/2 * sum(diag(DiffMatrix %*% dsigma.v22 %*%  M1Inv))   
+    
+    Value <- M1Inv %*% (Xvals[i,] - c(A, B))     #formula 10
+    grA   <- grA -  Value[1,1]   
+    grB   <- grB -  Value[2,1]   
+  }
+  
+  return(c(grv11, grv12, grv22, grA, grB))
+  
+}
+
+
+gradient.w <-function(w, Xvals, sigma.aSE, sigma.bSE){
+  
+  v       <- WtoV(w)
+  grad.v  <- gradient.v(v, Xvals, sigma.aSE, sigma.bSE)
+  deriv.w <- t(dVdW(w)) %*% grad.v   
+  
+  return(deriv.w)
+}
+
+dVdW <- function (w){
+  
+  # get derivs of V wrt W
+  
+  dSigma11dw <- c(exp(w[1]), 0, 0, 0, 0)                                   #  = exp ( w[1])
+  dSigma12dw <- c( 1/2 * w[2] * exp(1/2 * w[1]), exp(1/2 * w[1]), 0, 0, 0) #  = w[2] * e^ 1/2 w[1] 
+  dSigma22dw <- c(0, 2 * w[2], exp(w[3]), 0, 0)                            #  = exp( w[3] ) + w[2]^2 
+  
+  dvdw <- rbind (dSigma11dw, 
+                 dSigma12dw, 
+                 dSigma22dw, 
+                 c(0, 0, 0, 1, 0), 
+                 c(0, 0, 0, 0, 1))
+  return( dvdw)
+}
+
+dWdV <- function(v){
+  
+  v22.1 <- v[3] - v[2]^2/v[1]
+  dw1dv <- c(1/v[1], 0, 0, 0, 0)
+  dw2dv <- c(- 1/2 * v[2]/v[1]^(1.5), v[1]^(-1/2), 0, 0, 0)
+  dw3dv <- c(1/v22.1 * v[2]^2/v[1]^2, - 2/v22.1 * v[2]/v[1], 1/v22.1, 0, 0)
+  dw4dv <- c(0, 0, 0, 1, 0)
+  dw5dv <- c(0, 0, 0, 0, 1)
+  
+  dwdv <- rbind(dw1dv, dw2dv, dw3dv, dw4dv, dw5dv)
+  
+  return ( dwdv)
+}
+
+
+MLsolution.w <-  function(Xvals, sigma.aSE, sigma.bSE, SMALL =0.0001, Bignegative=-10){
+  
+  L           <- nrow(Xvals)
+  sigma.asVar <- sigma.aSE^2
+  sigma.bsVar <- sigma.bSE^2
+  
+  t    <- c(max(var(Xvals[,1]) - mean(sigma.asVar), SMALL), 0, max(var(Xvals[,2]) - mean(sigma.bsVar), SMALL))
+  
+  w11s <- VtoW(t)[1]
+  w12s <-	0
+  w22s <- VtoW(t)[3]
+  
+  a1   <- mean(Xvals[,1])
+  b1   <- mean(Xvals[,2])
+  
+  # use optim function for ML estimates of between trial level variance and covariance, A and B
+  
+  
+  answer <- optim(par       = c(w11s, w12s, w22s, a1, b1), 
+                  fn        = minusLogL.w, 
+                  gr        = gradient.w, 
+                  method    = c("L-BFGS-B"), 
+                  lower     = c(Bignegative, -Inf, Bignegative, -Inf, -Inf), 
+                  control   = list(trace=6, REPORT=1), 
+                  hessian   = TRUE, 
+                  Xvals     = Xvals,  
+                  sigma.aSE = sigma.aSE, 
+                  sigma.bSE = sigma.bSE)
+  
+  return(answer)
+}
+
+summary.w <- function(rslt.w, Xvals, sigma.aSE, sigma.bSE){
+  
+  estimate.w <- rslt.w$par  ## on transformed scale (w)
+  deriv.w    <- gradient.w(estimate.w, Xvals, sigma.aSE, sigma.bSE)
+  
+  # convert choleski parameters to var-cov
+  
+  estimate.v           <- WtoV(estimate.w)
+  names(estimate.v)    <- c("v11", "v12", "v22", "A", "B")
+  deriv.v              <- gradient.v(estimate.v, Xvals, sigma.aSE, sigma.bSE)
+  dvdw                 <- dVdW(estimate.w)
+  variancematrix.v     <- dvdw %*% solve(rslt.w$hessian, tol = 1e-800) %*% t(dvdw)  # for Sigma and means
+  
+  
+  dimnames(variancematrix.v) <- list(c("v11", "v12", "v22", "A", "B"), 
+                                     c("v11", "v12", "v22", "A", "B"))
+  
+  return(list(convergence      = rslt.w$convergence, 
+              minusRlogL       = rslt.w$value, 
+              estimate.w       = estimate.w, 
+              deriv.w          = deriv.w, 
+              estimate.v       = estimate.v, 
+              deriv.v          = deriv.v,
+              variancematrix.v = variancematrix.v))
+}
+
+
+# Extracting information from generation
+Xvalues <- cbind(a = (sapply(fits_para, function(X) X[X[,"label"]=="a", "est"])),
+                 b = (sapply(fits_para, function(X) X[X[,"label"]=="b", "est"])))
+SE_A    <- sapply(fits_para, function(X) X[X[,"label"]=="a", "se"])
+SE_B    <- sapply(fits_para, function(X) X[X[,"label"]=="b", "se"])
+
+# Running the functions to get estinmates of a and b parameters (and their vcov)
+
+Esties  <- MLsolution.w(Xvals     = Xvalues,
+                        sigma.aSE = SE_A,
+                        sigma.bSE = SE_B)
+
+Esties
+
+results_MonteCarlo <- summary.w(rslt.w    = Esties,
+                     Xvals     = Xvalues,
+                     sigma.aSE = SE_A,
+                     sigma.bSE = SE_B )
+
+
+results_MonteCarlo
+
+# Confidence Interval part
+
+setsam                <- array(data = NA, dim = c(nrow(Xvalues), 2, 2000))
+MeanAtimesB.star      <- rep(0,2000)   
+AtimesBsigma.hat.star <- rep(0,2000) 
+
+for (u in 1:2000) {
+  
+  setsam[,,u]              <- mvrnorm(n     = nrow(Xvalues), 
+                                      mu    = results_MonteCarlo$estimate.v[4:5], 
+                                      Sigma = results_MonteCarlo$variancematrix.v[4:5,4:5], tol = 1e-800)
+  
+  MeanAtimesB.star[u]      <- mean(setsam[,1,u]*setsam[,2,u])
+  
+  AtimesBsigma.hat.star[u] <- sqrt((mean(setsam[,1,u])^2)*var(setsam[,2,u])+
+                                     (mean(setsam[,2,u])^2)*var(setsam[,1,u]))
+  
+} 
+
+A    <- results_MonteCarlo$estimate.v[4]
+B    <- results_MonteCarlo$estimate.v[5]
+
+ABse <- sqrt(((A^2)*(results_MonteCarlo$variancematrix.v[5,5]))+((B^2)*(results_MonteCarlo$variancematrix.v[4,4]))) #sobel
+
+
+CL       <- c((A*B) - ABse*quantile ((MeanAtimesB.star - (A*B))/AtimesBsigma.hat.star, probs = c(.975), names=FALSE),      
+              (A*B) - ABse*quantile ((MeanAtimesB.star - (A*B))/AtimesBsigma.hat.star, probs = c(.025), names=FALSE))
+
+names(CL)<- c("2.5%", "97.5%")
+
+sumres_montecarloHuang <- list("indirect" = A*B, "CI"= CL, "parametersresults" =results_MonteCarlo$estimate.v, "vcov" = results_MonteCarlo$variancematrix.v)
+
+
+
+```
+
+# Monte Carlo (SE correction)
+
+```{r}
+
+Nobs_X <- nrow(Xvalues)# Number of study level estimates
+setsam2                <- array(data = NA, dim = c(Nobs_X, 2, 2000))
+MeanAtimesB.star2      <- rep(0,2000)   
+AtimesBsigma.hat.star2 <- rep(0,2000) 
+
+
+
+for (u in 1:2000) {
+  setsam2[,,u]              <- mvrnorm(n = Nobs_X, mu  = results_MonteCarlo$estimate.v[4:5], Sigma = results_MonteCarlo$variancematrix.v[4:5,4:5] )
+  MeanAtimesB.star2[u]      <- mean(setsam2[,1,u] * setsam2[,2,u])
+  AtimesBsigma.hat.star2[u] <- sqrt((mean(setsam2[,1,u])^2) * (var(setsam2[,2,u])/Nobs_X)+
+                                     (mean(setsam2[,2,u])^2) * (var(setsam2[,1,u])/Nobs_X))
+} 
+
+A     <- results_MonteCarlo$estimate.v[4]
+B     <- results_MonteCarlo$estimate.v[5]
+Pivot <- (MeanAtimesB.star2 - (A*B))/ AtimesBsigma.hat.star2
+
+ABse <- sqrt(((A^2)*(results_MonteCarlo$variancematrix.v[5,5]))+((B^2)*(results_MonteCarlo$variancematrix.v[4,4]))) #sobel
+
+
+CLSEcor      <- c((A*B) - ABse * quantile(Pivot, probs = c(.975), names=FALSE),      
+             (A*B) - ABse * quantile(Pivot, probs = c(.025), names=FALSE) )
+
+names(CLSEcor)<- c("2.5%", "97.5%")
+
+
+sumres_montecarloSECOR<- list("indirect" = A*B, "CI"= CLSEcor, "parametersresults" =results_MonteCarlo$estimate.v, "vcov" = results_MonteCarlo$variancematrix.v)
+
+```
+
+# Sequential Bayesian (indirect variant)
+```{r}
+
+Seqbay_indirect <- function(gen_data, eta = 1.5, lambda = 0.08,
+                            var = 5,  iterations = 5000, 
+                            chains = 3, burn = 1000, thin = 1)
+  
+  require(rjags)
+  
+  # Input conversion
+  y.i        <- sapply(fits_para, function(X) X[X[,"label"]=="ab", "est"])
+  sigma.sq.i <- sapply(fits_para, function(X) X[X[,"label"]=="ab", "se"]**2) # Since inverse of variance, not SE
+  
+  # Model
+  indirect_effect_model <- "
+  model { 
+  for (i in 1:n) { 
+  y.i[i]     ~ dnorm(theta.i[i], 1 / sigma.sq.i[i])
+  theta.i[i] ~ dnorm(theta, inv.tsq)} # JAGS uses precision not variance 
+  
+  theta      ~ dnorm(mu, prec) 
+  inv.tsq    ~ dgamma(eta, lambda)      # Appropriate prior for precision 
+  tsq        <- 1 / inv.tsq 
+  }
+  "
+  
+  # Initial values for each chain, random seed selected
+  
+  inits1 <- list(theta   = -0.92 ,         # Random number
+                 inv.tsq =  6.04 ,         # Random number
+                 .RNG.name="base::Super-Duper", .RNG.seed=     4163370) # seed
+  inits2 <- list(theta   = 1.12 , 
+                 inv.tsq = 2.79  , 
+                 .RNG.name="base::Wichmann-Hill", .RNG.seed=   4163370)
+  inits3 <- list(theta   = -1.32, 
+                 inv.tsq =  4.05 , 
+                 .RNG.name="base::Mersenne-Twister", .RNG.seed=4163370)
+  
+  
+  # Set-up and run simulation
+  BayesIN.jags <- jags.model(file     = textConnection(indirect_effect_model), 
+                             n.chains = 3, quiet   = TRUE, 
+                             list(y.i = y.i, sigma.sq.i = sigma.sq.i,
+                                  n   = length(y.i), 
+                                  mu  = 0, eta = 1.5, lambda = 0.08, prec = 1 / 5), 
+                             inits    = list(inits1, inits2, inits3))
+  
+  update(BayesIN.jags, 1000, progress.bar="none") # Burn-in 
+  
+  BayesIN.sims <- coda.samples(BayesIN.jags, c("theta", "tsq"), n.iter = 5000,
+                               thin = 1, progress.bar = "none")
+  
+  plot(BayesIN.sims)
+  gelman.plot(BayesIN.sims)
+  # Theta HPD credible interval for decision rule 
+  all.chains.ind <- as.mcmc(do.call(rbind, BayesIN.sims)) 
+  
+  # Summary measures 
+  theta.indi.median <- median(all.chains.ind[, "theta"]) 
+  theta.indi.HPD.95 <- HPDinterval(all.chains.ind)["theta", ] 
+  tsq.ind.median   <- median(all.chains.ind[, "tsq"]) 
+  tsq.ind.HPD      <- HPDinterval(all.chains.ind)["tsq", ] 
+  
+sumres_SBindirect <-   list("indirect"= theta.indi.median, "indirect.HPD" = theta.indi.HPD.95, 
+                           "Tau" =tsq.ind.median, "TauHPD" = tsq.ind.HPD )
+```
+
+
+
+# Sequential Bayesian (Two-Parameter Variant)
+
+
+```{r}
+
+  # Input conversion
+  yi_a       <- (sapply(fits_para, function(X) X[X[,"label"]=="a", "est"]))
+  yi_b       <- (sapply(fits_para, function(X) X[X[,"label"]=="b", "est"]))
+  
+  sigma_a      <- (sapply(fits_para, function(X) X[X[,"label"]=="a", "se"]**2)) 
+  # Since inverse of variance, not SE
+  sigma_b      <- (sapply(fits_para, function(X) X[X[,"label"]=="b", "se"]**2)) 
+  # Since inverse of variance, not SE
+  
+  
+  Multi_inv <- "
+  model { 
+  for (i in 1:n) { 
+  y.a.i[i]        ~ dnorm(theta.a.i[i], 1 / sigma.a.sq.i[i])
+  y.b.i[i]        ~ dnorm(theta.b.i[i], 1 / sigma.b.sq.i[i])
+  
+  theta.a.i[i] ~ dnorm(theta.a, inv.tsq.a)
+  theta.b.i[i] ~ dnorm(theta.b, inv.tsq.b)
+  } # JAGS uses precision not variance 
+  
+  theta.a      ~ dnorm(mu, prec) 
+  theta.b      ~ dnorm(mu, prec) 
+  inv.tsq.a    ~ dgamma(1.5, 0.08)      # Appropriate prior for precision 
+  inv.tsq.b    ~ dgamma(1.5, 0.08)  
+  tsq.a        <- 1 / inv.tsq.a 
+  tsq.b        <- 1 / inv.tsq.b
+  
+  indirect     <- theta.a*theta.b
+  }
+  "
+  
+  # Initial values for each chain, random seed selected
+  
+  inits11 <- list(theta.a   = -0.92 ,         # Random number from   runif(1, -2, 2)
+                 inv.tsq.a = 12.19,          # Random number from 1/runif(1,  0, 0.5)
+                 theta.b   = -0.33,          # Random number from   runif(1, -2, 2)  
+                 inv.tsq.b =  6.04 ,         # Random number from 1/runif(1,  0, 0.5)
+                 .RNG.name="base::Super-Duper", .RNG.seed=     4163370) # seed
+  inits22 <- list(theta.a   = 0.60 ,  
+                 inv.tsq.a = 22.0,        
+                 theta.b  =  0.58,         
+                 inv.tsq.b =  2.68 ,  
+                 .RNG.name="base::Wichmann-Hill", .RNG.seed=   4163370)
+  inits33 <- list(theta.a   = 0.34 ,  
+                 inv.tsq.a = 11.6,        
+                 theta.b   = 0.26 ,         
+                 inv.tsq.b = 16.83 ,   
+                 .RNG.name="base::Mersenne-Twister", .RNG.seed=4163370)
+  
+  # Set-up and run simulation
+  BayesMA.jags <- jags.model(file     = textConnection(Multi_inv), 
+                             n.chains = 3, quiet   = TRUE, 
+                             list(y.a.i = yi_a, 
+                                  y.b.i = yi_b,
+                                  sigma.a.sq.i = sigma_a,
+                                  sigma.b.sq.i = sigma_b,
+                                  n   = length(yi_a), 
+                                  mu  = 0,  prec = 1 / 5), 
+                             inits    = list(inits11, inits22, inits33))
+  
+  update(BayesMA.jags, 1000, progress.bar="none") # Burn-in 
+  
+  BayesMA.sims <- coda.samples(BayesMA.jags, c("indirect", 
+                                               "tsq.a", "tsq.b",
+                                               "theta.a" , "theta.b")
+                               , n.iter = 5000,
+                               thin = 1, progress.bar = "none")
+  
+  plot(BayesMA.sims, trace = T,density = F)
+  plot(BayesMA.sims, trace = F,density = T)
+  gelman.plot(BayesMA.sims)
+  # Theta HPD credible interval for decision rule 
+  all.chains.mul <- as.mcmc(do.call(rbind, BayesMA.sims)) 
+  
+  # Summary measures 
+  indirect.median  <- median(all.chains.mul[, "indirect"]) 
+  indirect.HPD.95  <- HPDinterval(all.chains.mul)["indirect", ] 
+  
+  tsqa.median   <- median(all.chains.mul[, "tsq.a"]) 
+  tsqa.HPD      <- HPDinterval(all.chains.mul)["tsq.a", ] 
+  
+  tsqb.median   <- median(all.chains.mul[, "tsq.b"]) 
+  tsqb.HPD      <- HPDinterval(all.chains.mul)["tsq.b", ] 
+  
+  a.median      <- median(all.chains.mul[, "theta.a"]) 
+  a.HPD         <- HPDinterval(all.chains.mul)["theta.a", ] 
+  
+  b.median      <- median(all.chains.mul[, "theta.b"]) 
+  b.HPD         <- HPDinterval(all.chains.mul)["theta.b", ] 
+  
+sumres_SBtwopara <-   list("indirect"= indirect.median, "indirect.HPD" = indirect.HPD.95,
+                           "a" =a.median, "a.HPD" = a.HPD ,
+                           "b" =b.median, "b.HPD" = b.HPD , 
+                            "Tau.a" =tsqa.median, "Tau.a.HPD" = tsqa.HPD , 
+                           "Tau.b" =tsqb.median, "Tau.b.HPD" = tsqb.HPD )
+```
+
+
+# Results
+
+```{r include=FALSE}
+RESU<- cbind.data.frame("Method" = c( "TSSEM" , "MASEM", "Monte Carlo (Huang)" , "Monte Carlo (SE correction)", "Sequential Bayes (Indirect)","Sequential Bayes (Two Parameter)" ),
+                        "a.effect" = c(sumres_tssem_stage2$coefficients["a", "Estimate"], NA, sumres_montecarloHuang$parametersresults["A"], sumres_montecarloSECOR$parametersresults["A"], NA, sumres_SBtwopara$a  ), 
+                        "a.lci" = c(sumres_tssem_stage2$coefficients["a", "lbound"], NA, NA, NA, NA, sumres_SBtwopara$a.HPD[1]  ),
+                        "a.uci" = c(sumres_tssem_stage2$coefficients["a", "ubound"], NA, NA, NA, NA, sumres_SBtwopara$a.HPD[2]  ), 
+                          "a.tau" = c(sumres_tssem_stage1$coefficients["Tau2_1_1", "Estimate"], NA, sumres_montecarloHuang$parametersresults["v11"], sumres_montecarloSECOR$parametersresults["v11"], NA, sumres_SBtwopara$Tau.a  ),
+                       
+                        
+                         "b.effect" = c(sumres_tssem_stage2$coefficients["b", "Estimate"], NA, sumres_montecarloHuang$parametersresults["B"], sumres_montecarloSECOR$parametersresults["B"], NA, sumres_SBtwopara$b  ), 
+                        "b.lci" = c(sumres_tssem_stage2$coefficients["b", "lbound"], NA, NA, NA, NA, sumres_SBtwopara$a.HPD[1]  ),
+                        "b.uci" = c(sumres_tssem_stage2$coefficients["b", "ubound"], NA, NA, NA, NA, sumres_SBtwopara$a.HPD[2]  ), 
+                        "b.tau" = c(sumres_tssem_stage1$coefficients["Tau2_2_2", "Estimate"], NA, sumres_montecarloHuang$parametersresults["v22"], sumres_montecarloSECOR$parametersresults["v22"], NA, sumres_SBtwopara$Tau.b  ),
+                        
+                        
+                        "indirect.effect" = c(sumres_tssem_stage2$mx.algebras[1, "Estimate"], sumres_masem$coefficients[1, "Estimate"], sumres_montecarloHuang$indirect, sumres_montecarloSECOR$indirect, sumres_SBindirect$indirect, sumres_SBtwopara$indirect  ), 
+                        "indirect.lci" = c(sumres_tssem_stage2$mx.algebras[1, "lbound"], sumres_masem$coefficients[1, "lbound"], sumres_montecarloHuang$CI[1], sumres_montecarloSECOR$CI[1], sumres_SBindirect$indirect.HPD[1], sumres_SBtwopara$indirect.HPD[1]  ),
+                        "indirect.uci" = c(sumres_tssem_stage2$mx.algebras[1, "ubound"], sumres_masem$coefficients[1, "ubound"], sumres_montecarloHuang$CI[2], sumres_montecarloSECOR$CI[2], sumres_SBindirect$indirect.HPD[2], sumres_SBtwopara$indirect.HPD[2]  ), 
+                        "indirect.tau" = c(NA, sumres_masem$coefficients[2, "Estimate"], NA, NA, sumres_SBindirect$Tau, NA  ))
+
+```
+
+```{r}
+RESU %>% select(-c(10:13)) %>% filter(! grepl(x = Method, pattern = "MASEM|Indirect" )) %>%  kable(caption = "Coeff.",digits = 3) %>% kable_styling() %>% add_header_above(header = c("", "a effect" =4," b effect" =4  ))
+```
+
+
+```{r}
+RESU %>% select(1,c(10:13)) %>%  kable(caption = "Indirect",digits = 3) %>% kable_styling()%>%
+  add_header_above(header = c("", "", "95% CI" =2, "" ))
+```
